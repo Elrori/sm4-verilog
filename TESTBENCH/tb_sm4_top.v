@@ -80,10 +80,13 @@ module tb_sm4_top();
             encdec_enable_in = 1;
             #111;
             @(posedge clk)
-            begin
+            
             valid_in = 1'b1;
             data_in = 128'h681edf34d206965e86b3e94f536e4246;
-            end
+            @(posedge clk)
+            data_in = 128'h681edf34d206965e86b3e94f536e4245;
+            @(posedge clk)
+            data_in = 128'h681edf34d206965e86b3e94f536e4244;
             #300;
             $finish;
         end

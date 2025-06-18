@@ -1,0 +1,1 @@
+modelsim.exe -do do.do
