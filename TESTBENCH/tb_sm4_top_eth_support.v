@@ -12,7 +12,7 @@ module sm4_top_eth_support_tb;
     reg [7:0] s_axis_tdata=0;
     reg  s_axis_tvalid=0;
     reg  s_axis_tlast=0;
-    wire  s_axis_tready=1;
+    wire  s_axis_tready;
     reg  [7:0] s_axis_tuser=9;
     wire [7:0] m_axis_tdata;
     wire  m_axis_tvalid;
@@ -29,6 +29,7 @@ module sm4_top_eth_support_tb;
         .s_axis_tvalid(s_axis_tvalid),
         .s_axis_tlast(s_axis_tlast),
         .s_axis_tuser(s_axis_tuser),
+        .s_axis_tready(s_axis_tready),
         .m_axis_tdata(m_axis_tdata),
         .m_axis_tvalid(m_axis_tvalid),
         .m_axis_tlast(m_axis_tlast),
@@ -102,7 +103,9 @@ module sm4_top_eth_support_tb;
         @(posedge clk);
         repeat(100) @(posedge clk);
         gen_axis("input5.txt");
+        gen_axis("input6.txt");
         gen_axis("input5.txt");
+        gen_axis("input6.txt");
         // gen_axis("input3.txt");
         // gen_axis("input3.txt");
         // gen_axis("input3.txt");

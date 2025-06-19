@@ -32,18 +32,20 @@ wire [7  :0] s_axis_tuser_int;
 wire         tready;
 reg  [3 : 0] count;
 reg          padding;
+reg  [7  :0] padding_tuser;
 
 assign s_axis_tready = tready & s_axis_tready_int;
 assign s_axis_tlast_int = (count == 15)  ? (s_axis_tlast |padding) : 0;
 assign s_axis_tvalid_int = padding  | s_axis_tvalid;
 assign s_axis_tdata_int = padding ? 8'h00 : s_axis_tdata;
-assign s_axis_tuser_int = s_axis_tuser;
+assign s_axis_tuser_int = padding ? padding_tuser : s_axis_tuser;
 assign tready = ~padding;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         count <= 0;
         padding <= 0;
+        padding_tuser <= 0;
     end else begin
         if (s_axis_tvalid && s_axis_tready && s_axis_tlast && (!padding)) begin
             if (count != 15) begin
@@ -58,6 +60,9 @@ always @(posedge clk or posedge rst) begin
             count <= 0;
         end else if ((s_axis_tvalid && s_axis_tready) || padding) begin
             count <= count + 1;
+        end
+        if(s_axis_tvalid && s_axis_tlast && s_axis_tready) begin
+            padding_tuser <= s_axis_tuser;
         end
     end
 end
