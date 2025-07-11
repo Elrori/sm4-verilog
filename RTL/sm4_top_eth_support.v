@@ -13,16 +13,16 @@ module sm4_top_eth_support #(
     input  wire [127:0] sm4_key, // 复位后，无需置sm4_vld，sm4_key和sm4_sel也会生效。
     input  wire         sm4_sel, // 0: encrypt, 1: decrypt
 
-    input  wire [7  :0] s_axis_tdata, // ethernet data input
-    input  wire         s_axis_tvalid,// 以太网报文满足 length>=64
-    input  wire         s_axis_tlast,
-    input  wire [7  :0] s_axis_tuser,
-    output wire         s_axis_tready, // 只有在tlast下降沿才有可能拉低 且 只有复位后才会持续一段时间低电平
+    input  wire [7  :0] s_axis_tdata, /*synthesis keep=true*/ // ethernet data input
+    input  wire         s_axis_tvalid,/*synthesis keep=true*/ // 以太网报文满足 length>=64
+    input  wire         s_axis_tlast, /*synthesis keep=true*/
+    input  wire [7  :0] s_axis_tuser, /*synthesis keep=true*/
+    output wire         s_axis_tready,/*synthesis keep=true*/  // 只有在tlast下降沿才有可能拉低 且 只有复位后才会持续一段时间低电平
 
-    output wire [7  :0] m_axis_tdata,// ethernet data output 背靠背输出
-    output wire         m_axis_tvalid,
-    output wire         m_axis_tlast,
-    output wire [7  :0] m_axis_tuser
+    output wire [7  :0] m_axis_tdata, /*synthesis keep=true*/ // ethernet data output 背靠背输出
+    output wire         m_axis_tvalid,/*synthesis keep=true*/
+    output wire         m_axis_tlast, /*synthesis keep=true*/
+    output wire [7  :0] m_axis_tuser  /*synthesis keep=true*/
 );
 localparam PIPELINE_DLY = 49;
 initial begin

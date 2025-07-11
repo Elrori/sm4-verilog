@@ -36,12 +36,10 @@ assign m_axis_tlast = tlast[31];
 
 always @(posedge clk or posedge rst) begin: timing_ctrl
     if (rst) begin
-        state <= 1;
+        state <= 0;
         count <= 0;
         sm4_enable_in <= 0;
         encdec_enable_in <= 0;
-        encdec_sel_in <= sm4_sel;
-        sm4_key_d1  <= sm4_key;
         enable_key_exp_in <= 0;
         user_key_valid_in <= 0;
         user_key_in <= 0;
@@ -52,7 +50,59 @@ always @(posedge clk or posedge rst) begin: timing_ctrl
             tlast[i] <= tlast[i-1];
         end
         case (state)
-            0: begin // runing state
+            0: begin // start cfg
+                if (count == 32) begin
+                    sm4_enable_in <= 1;
+                    encdec_sel_in <= sm4_sel;
+                    sm4_key_d1  <= sm4_key;
+                    count <= 0;
+                    state <= 1;
+                end else begin
+                    count <= count + 1;
+                end
+            end
+            1: begin
+                state <= 2;
+            end
+            2: begin
+                enable_key_exp_in <= 1;
+                state <= 3;
+            end
+            3: begin
+                if (count == 8) begin
+                    user_key_valid_in <= 1;
+                    user_key_in <= sm4_key_d1;
+                    count <= 0;
+                    state <= 4;
+                end else begin
+                    count <= count + 1;
+                end
+            end
+            4: begin
+                user_key_valid_in <= 0;
+                if (key_exp_ready_out) begin
+                    state <= 5;
+                end
+            end
+            5: begin
+                if (count == 8) begin
+                    encdec_enable_in <= 1;
+                    count <= 0;
+                    state <= 6;
+                end else begin
+                    count <= count + 1;
+                end
+            end
+            6: begin
+                if (count == 16) begin
+                    tready <= 1;
+                    count <= 0;
+                    state <= 7;
+                end else begin
+                    count <= count + 1;
+                end
+            end
+            7: begin // runing state
                 if (sm4_vld) begin
                     sm4_enable_in <= 0;
                     encdec_sel_in <= sm4_sel;
@@ -61,57 +111,7 @@ always @(posedge clk or posedge rst) begin: timing_ctrl
                     encdec_enable_in <= 0;
                     sm4_key_d1      <= sm4_key;
                     tready <= 0;
-                    state <= 1;
-                end
-            end
-            1: begin // start cfg
-                if (count == 32) begin
-                    sm4_enable_in <= 1;
-                    count <= 0;
-                    state <= 2;
-                end else begin
-                    count <= count + 1;
-                end
-            end
-            2: begin
-                state <= 3;
-            end
-            3: begin
-                enable_key_exp_in <= 1;
-                state <= 4;
-            end
-            4: begin
-                if (count == 8) begin
-                    user_key_valid_in <= 1;
-                    user_key_in <= sm4_key_d1;
-                    count <= 0;
-                    state <= 5;
-                end else begin
-                    count <= count + 1;
-                end
-            end
-            5: begin
-                user_key_valid_in <= 0;
-                if (key_exp_ready_out) begin
-                    state <= 6;
-                end
-            end
-            6: begin
-                if (count == 8) begin
-                    encdec_enable_in <= 1;
-                    count <= 0;
-                    state <= 7;
-                end else begin
-                    count <= count + 1;
-                end
-            end
-            7: begin
-                if (count == 16) begin
-                    tready <= 1;
-                    count <= 0;
                     state <= 0;
-                end else begin
-                    count <= count + 1;
                 end
             end
             default: ;
